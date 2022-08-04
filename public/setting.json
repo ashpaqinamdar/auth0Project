@@ -1,0 +1,12 @@
+{
+  "REACT_APP_REDIRECTION_SIGNIN_URL": "http://localhost:3000/login-redirect",
+  "REACT_APP_REDIRECTION_SIGNOUT_URL": "http://localhost:3000/",
+  "REACT_APP_AUTH0_CLIENT": "Hlf0HTocBprqUPlu5imRJm5ciNuHC7Tn",
+  "REACT_APP_AUTH0_DOMAIN": "dev--e88-qvm.us.auth0.com",
+  "REACT_APP_AUTH0_CUSTOM_DOMAIN": "dev--e88-qvm.us.auth0.com",
+  "REACT_APP_AUTH0_CLIENT_SECRET": "bMD3fgNbkL4kDOWBO7dSzOd1LFoFD0VtOHjcpDC0AlFfZIypIYkWaLTutEKZjHzW",
+  "REACT_APP_REDIRECTION_SIGNIN_URL_SOCIAL": "http://localhost:3000/social-signup",
+  "REACT_APP_REDIRECTION_SIGNIN_URL_AUTHORIZE": "http://localhost:3000/authorize",
+  "REACT_APP_FORGOT_PASSWORD_URL": "http://localhost:3000/login",
+  "REACT_APP_REDIRECTION_VERIFY_EMAIL": "http://localhost:3000/dashboard"
+}
