@@ -29,7 +29,7 @@ const App = () => {
   return (
     <>
       <Router>
-        <Suspense fallback={<div>Loading...</div>}>{routes}</Suspense>
+        <Suspense fallback={<div>Loading..</div>}>{routes}</Suspense>
       </Router>
       <ToastContainer hideProgressBar={true} newestOnTop={false} />
     </>
