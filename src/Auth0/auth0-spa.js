@@ -49,6 +49,20 @@ export async function loginGoogle(params) {
 
   await auth0.loginWithRedirect({
     connection: "google-oauth2",
+    redirect_uri: data.REACT_APP_REDIRECTION_SOCIAL_SIGNUP,
+  });
+}
+
+export async function loginGoogleAuth(params) {
+  localStorage.clear();
+  let settingURL = process.env.PUBLIC_URL + "/setting.json";
+  const response = await fetch(settingURL);
+  const data = await response.json();
+  const auth0 = await initClient();
+  saveAuthType("social");
+  localStorage.setItem("type", "login");
+  await auth0.loginWithRedirect({
+    connection: "google-oauth2",
     redirect_uri: data.REACT_APP_REDIRECTION_SIGNIN_URL_AUTHORIZE,
   });
 }

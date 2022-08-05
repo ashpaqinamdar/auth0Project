@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./index.css";
 import { manualLogin } from "../../Auth0/auth0";
-import { loginGoogle } from "../../Auth0/auth0-spa";
+import { loginGoogle, loginGoogleAuth } from "../../Auth0/auth0-spa";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { checkUserExists } from "../../utils/firebase";
+import { checkUserExists, db } from "../../utils/firebase";
 import {
   validateEmail,
   passwordValidation,
@@ -14,6 +14,10 @@ import LogIn from "../../Components/Login";
 import SignUp from "../../Components/SignUp";
 import ForgotPassword from "../../Components/ForgotPassword";
 import auth0 from "auth0-js";
+import { getToken } from "../../Auth0/auth0-spa";
+import { getAuth0Token } from "../../utils/localStorage";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -40,6 +44,35 @@ function Login() {
   const [reqSuccess, setReqSuccess] = useState(false);
   const [forgotPass, setForgotPass] = useState(false);
   const [signUp, setSignUp] = useState(false);
+  const [isSocial, setIsSocial] = useState(false);
+  const [auth, setAuth] = useState({});
+  const navigate = useHistory();
+
+  useEffect(() => {
+    let path = window.location.pathname;
+    if (path === "/social") {
+      setSignUp(true);
+      setIsSocial(true);
+      fetchData();
+    } else {
+      localStorage.clear();
+    }
+
+    async function fetchData() {
+      const FormData = { ...signUpFormData };
+      await getToken().then(async (data) => {
+        let authResponse = await getAuth0Token();
+        let user = await authResponse;
+
+        setAuth(user);
+        FormData.firstName = authResponse.body.decodedToken.user.given_name;
+        FormData.lastName = authResponse.body.decodedToken.user.family_name;
+        FormData.email = authResponse.body.decodedToken.user.email;
+
+        setSignUpFormData(FormData);
+      });
+    }
+  }, []);
 
   const handleOnChange = (e) => {
     const FormData = { ...formData };
@@ -74,6 +107,10 @@ function Login() {
 
     if (user === undefined) {
       toast.error("Incorrect email or password");
+      return;
+    }
+    if (user?.isSocial) {
+      toast.error("This email uses social log in, please login with google");
       return;
     }
 
@@ -221,17 +258,58 @@ function Login() {
   };
 
   const switchSignUp = () => {
+    localStorage.clear();
     setSignUp(!signUp);
   };
 
-  const handleLoginGoogle = () => {
-    loginGoogle();
+  const handleLoginGoogle = (type) => {
+    if (type === "SIGNUP") {
+      loginGoogle(type);
+    } else if (type === "LOGIN") {
+      loginGoogleAuth();
+    }
+  };
+
+  const goToHome = () => {
+    navigate.push("/login", { replace: true });
+    localStorage.clear();
+    setIsSocial(false);
+    setSignUp(false);
+    let FormData = { ...setSignUpFormData };
+    FormData.firstName = "";
+    FormData.lastName = "";
+    FormData.email = "";
+    FormData.password = "";
+    setSignUpFormData(FormData);
+  };
+
+  const handleSocialSignUp = async () => {
+    let user = await checkUserExists(signUpFormData.email);
+
+    if (user !== undefined) {
+      toast.error("User already exists");
+
+      return;
+    }
+
+    try {
+      await addDoc(collection(db, "userData"), {
+        firstName: signUpFormData.firstName,
+        lastName: signUpFormData.lastName,
+        email: signUpFormData.email,
+        isSocial: true,
+        created: Timestamp.now(),
+      });
+      localStorage.setItem("authEmail", signUpFormData.email);
+      await navigate.push("/dashboard", { replace: true });
+    } catch (err) {
+      console.log("dd", err);
+    }
   };
   return (
     <div className="backgroundImage">
-      <ToastContainer position="bottom-right" />;
       <div className="mainLayout">
-        {!forgotPass && (
+        {!forgotPass && !isSocial && (
           <div className="signUpText" onClick={switchSignUp}>
             {signUp ? (
               <div>Already have an account?</div>
@@ -248,13 +326,18 @@ function Login() {
           <LogIn
             handleOnChange={handleOnChange}
             handleSubmit={handleSubmit}
-            handleLoginGoogle={handleLoginGoogle}
+            handleLoginGoogle={() => handleLoginGoogle("LOGIN")}
             switchToForgotPassword={switchToForgotPassword}
           />
         ) : signUp ? (
           <SignUp
             handleSubmit={handleSignUpSubmit}
+            handleSocialSignUp={handleSocialSignUp}
             handleOnChange={handleSignUpOnChange}
+            handleLoginGoogle={() => handleLoginGoogle("SIGNUP")}
+            signUpFormData={signUpFormData}
+            isSocial={isSocial}
+            goToHome={goToHome}
           />
         ) : (
           <ForgotPassword

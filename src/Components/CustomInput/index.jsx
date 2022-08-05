@@ -22,6 +22,7 @@ function CustomInput({
   labelSize,
   name,
   disabled,
+  isSocial,
 }) {
   return (
     <>
@@ -56,6 +57,7 @@ function CustomInput({
           inputProps={inputProps ? inputProps : ""}
           style={{ width: width ? width : "" }}
           type={type}
+          disabled={isSocial ? true : false}
         />
         {error && (
           <div className="customInputNewErrorMessage">

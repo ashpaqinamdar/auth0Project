@@ -31,7 +31,9 @@ function LogIn({
         </div>
       </div>
       <div className="loginWithGoogle">
-        <div onClick={handleLoginGoogle}>Or login with Google</div>
+        <div onClick={() => handleLoginGoogle("LOGIN")}>
+          Or login with Google
+        </div>
         <img src={google} width={50} />
       </div>
     </>

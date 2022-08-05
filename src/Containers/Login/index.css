@@ -17,7 +17,7 @@
   border: 1px solid gray;
   background-color: white;
 }
-.backgroundImage {
+body {
   background-image: url("../../assets/images/background.jpg");
   background-repeat: no-repeat;
   background-size: cover;
@@ -54,4 +54,8 @@
   color: blue;
   cursor: pointer;
   text-decoration: underline;
+}
+.cancelButton {
+  background-color: red !important;
+  margin-left: 15px !important;
 }

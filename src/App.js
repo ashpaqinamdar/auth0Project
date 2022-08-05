@@ -18,11 +18,13 @@ const App = () => {
   let routes = (
     <Switch>
       <Route path="/login" component={Login} />
+      <Route path="/social" component={Login} />
       <Route path="/authorize" component={Authorize} />
       <Route path="/login-redirect" component={RedirectDashboard} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/" component={Login} />
-      <Route path={"/"} component={Login}></Route>
+      <Route exact path={"/"} component={Login}></Route>
+      <Route path="*" component={Login} />
     </Switch>
   );
 
@@ -31,7 +33,7 @@ const App = () => {
       <Router>
         <Suspense fallback={<div>Loading..</div>}>{routes}</Suspense>
       </Router>
-      <ToastContainer hideProgressBar={true} newestOnTop={false} />
+      <ToastContainer newestOnTop={false} position="bottom-right" />
     </>
   );
 };
