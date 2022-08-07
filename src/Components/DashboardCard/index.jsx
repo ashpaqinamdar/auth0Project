@@ -1,5 +1,6 @@
 import React from "react";
 import "./index.css";
+import { Oval } from "react-loader-spinner";
 
 function DashboardCard({ userData }) {
   return (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import "./index.css";
 import { manualLogin } from "../../Auth0/auth0";
 import { loginGoogle, loginGoogleAuth } from "../../Auth0/auth0-spa";
@@ -18,8 +18,10 @@ import { getToken } from "../../Auth0/auth0-spa";
 import { getAuth0Token } from "../../utils/localStorage";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
+import { AuthContext } from "../../Context/index";
 
 function Login() {
+  const { isAuthenticated } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     email: "",
     password: "",

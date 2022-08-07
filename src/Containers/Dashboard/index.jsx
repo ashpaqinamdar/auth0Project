@@ -1,46 +1,28 @@
 import React, { useEffect, useState } from "react";
-import {
-  collection,
-  getDocs,
-  Timestamp,
-  doc,
-  query,
-  where,
-} from "firebase/firestore";
-import { db } from "../../utils/firebase";
 import Navbar from "../../Components/Navbar";
 import DashboardCard from "../../Components/DashboardCard";
 import { logout } from "../../Auth0/auth0-spa";
-import { Grid } from "react-loader-spinner";
+import { checkUserExists } from "../../utils/firebase";
 
 function Dashboard() {
-  const logOutHandler = () => {
-    localStorage.clear();
-    sessionStorage.clear();
-    logout();
-  };
   const [userData, setUserData] = useState({});
+
   useEffect(() => {
     async function getUserData() {
-      let rawData = [];
-      let id = "";
-      const q = query(
-        collection(db, "userData"),
-        where("email", "==", localStorage.getItem("authEmail"))
-      );
-      const querySnapshot = await getDocs(q);
-      querySnapshot.forEach((doc) => {
-        rawData.push(doc.data());
-        id = doc.id;
-      });
-      let data = rawData[0];
-      data.id = id;
+      let email = localStorage.getItem("authEmail");
+      let data = await checkUserExists(email);
       setUserData(data);
     }
     getUserData();
     document.body.style = "background: white;";
     return (document.body.style = "background: inherit;");
   }, []);
+
+  const logOutHandler = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    logout();
+  };
 
   return (
     <div>

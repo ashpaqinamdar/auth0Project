@@ -34,7 +34,7 @@ function Authorize() {
         await setAppAuthData(authResponse);
         localStorage.setItem(
           "authEmail",
-          authResponse.body.decodedToken.user.email
+          authResponse?.body?.decodedToken?.user?.email
         );
         await login();
       });
