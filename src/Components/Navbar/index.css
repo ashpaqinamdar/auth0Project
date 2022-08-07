@@ -1,0 +1,21 @@
+.navbar {
+  background-color: black;
+  height: 60px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.logo {
+  color: white;
+  font-weight: bold;
+  font-size: 30px;
+  padding-left: 40px;
+}
+.logout {
+  color: white;
+  font-size: 30px;
+  padding-right: 40px;
+}

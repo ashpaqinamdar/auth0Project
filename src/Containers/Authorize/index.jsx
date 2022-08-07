@@ -1,10 +1,11 @@
 /** @format */
 
 import React, { useEffect } from "react";
-import Loader from "react-loader-spinner";
+import { Circles } from "react-loader-spinner";
 import { login } from "../../Auth0/auth0-spa";
 import { getToken } from "../../Auth0/auth0-spa";
-import { getAuth0Token } from "../../utils/localStorage";
+import { getAuth0Token, saveProfile } from "../../utils/localStorage";
+import { Grid } from "react-loader-spinner";
 
 function Authorize() {
   useEffect(() => {
@@ -16,10 +17,21 @@ function Authorize() {
     } else {
       login();
     }
+
+    const setAppAuthData = (authResponse) => {
+      saveProfile({
+        userName: authResponse.body.decodedToken.user.name,
+        attributes: authResponse.body.decodedToken,
+        accessToken: authResponse.body.access_token,
+        idToken: authResponse.body.id_token,
+        refreshToken: authResponse.body.refresh_token,
+      });
+    };
     async function fetchData() {
       await getToken().then(async (data) => {
         let authResponse = await getAuth0Token();
         let user = await authResponse;
+        await setAppAuthData(authResponse);
         localStorage.setItem(
           "authEmail",
           authResponse.body.decodedToken.user.email
@@ -27,10 +39,19 @@ function Authorize() {
         await login();
       });
     }
+    document.body.style = "background: white;";
+    return (document.body.style = "background: inherit;");
   }, []);
   return (
-    <div style={{ width: "100%", textAlign: "center", marginTop: "100px" }}>
-      {/* <Loader type="Oval" color="#504294" height={60} width={60} /> */}
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        marginTop: "100px",
+      }}
+    >
+      <Grid color="#00BFFF" height={100} width={100} />
     </div>
   );
 }

@@ -7,6 +7,7 @@ function ForgotPassword({
   handleSubmit,
   switchToForgotPassword,
   reqSuccess,
+  loader,
 }) {
   return (
     <div>
@@ -31,7 +32,11 @@ function ForgotPassword({
             name="email"
           />
           <div className="loginTextFlex">
-            <CustomButton text={"Send Code"} submit={handleSubmit} />
+            <CustomButton
+              text={"Send Code"}
+              submit={handleSubmit}
+              loader={loader}
+            />
             <div
               onClick={switchToForgotPassword}
               style={{ textAlign: "center" }}

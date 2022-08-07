@@ -8,6 +8,7 @@ function LogIn({
   handleSubmit,
   handleLoginGoogle,
   switchToForgotPassword,
+  loader,
 }) {
   return (
     <>
@@ -25,16 +26,20 @@ function LogIn({
         type="password"
       />
       <div className="loginTextFlex">
-        <CustomButton text={"Log In"} submit={handleSubmit} />
+        <CustomButton text={"Log In"} submit={handleSubmit} loader={loader} />
         <div onClick={switchToForgotPassword} style={{ textAlign: "center" }}>
           <div className="forgotPassword">Forget Password?</div>
         </div>
       </div>
       <div className="loginWithGoogle">
+        Or login with Google
         <div onClick={() => handleLoginGoogle("LOGIN")}>
-          Or login with Google
+          <img
+            src={google}
+            width={50}
+            style={{ cursor: "pointer", marginTop: "10px" }}
+          />
         </div>
-        <img src={google} width={50} />
       </div>
     </>
   );

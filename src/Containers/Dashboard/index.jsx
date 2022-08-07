@@ -8,8 +8,17 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../../utils/firebase";
+import Navbar from "../../Components/Navbar";
+import DashboardCard from "../../Components/DashboardCard";
+import { logout } from "../../Auth0/auth0-spa";
+import { Grid } from "react-loader-spinner";
 
 function Dashboard() {
+  const logOutHandler = () => {
+    localStorage.clear();
+    sessionStorage.clear();
+    logout();
+  };
   const [userData, setUserData] = useState({});
   useEffect(() => {
     async function getUserData() {
@@ -29,9 +38,18 @@ function Dashboard() {
       setUserData(data);
     }
     getUserData();
+    document.body.style = "background: white;";
+    return (document.body.style = "background: inherit;");
   }, []);
 
-  return <div>name {userData.firstName}</div>;
+  return (
+    <div>
+      <Navbar logOutHandler={logOutHandler} />
+      <div style={{ padding: "80px 40px" }}>
+        <DashboardCard userData={userData} />
+      </div>
+    </div>
+  );
 }
 
 export default Dashboard;

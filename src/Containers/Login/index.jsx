@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./index.css";
 import { manualLogin } from "../../Auth0/auth0";
 import { loginGoogle, loginGoogleAuth } from "../../Auth0/auth0-spa";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { checkUserExists, db } from "../../utils/firebase";
 import {
@@ -59,8 +59,10 @@ function Login() {
     }
 
     async function fetchData() {
+      setLoader(true);
       const FormData = { ...signUpFormData };
       await getToken().then(async (data) => {
+        setLoader(false);
         let authResponse = await getAuth0Token();
         let user = await authResponse;
 
@@ -93,6 +95,7 @@ function Login() {
   const handleSubmit = async () => {
     const FormData = { ...formData };
     const FormError = { ...formError };
+    setLoader(true);
     FormError.isEmailValid = validateEmail(FormData.email);
     FormError.isPasswordValid = passwordValidation(FormData.password);
     console.log("csd", FormError);
@@ -106,10 +109,12 @@ function Login() {
     let user = await checkUserExists(formData.email);
 
     if (user === undefined) {
+      setLoader(false);
       toast.error("Incorrect email or password");
       return;
     }
     if (user?.isSocial) {
+      setLoader(false);
       toast.error("This email uses social log in, please login with google");
       return;
     }
@@ -127,10 +132,13 @@ function Login() {
         grant_type: "password",
       });
     } catch (err) {
-      localStorage.removeItem("manual_mode");
       setLoader(false);
+      localStorage.removeItem("manual_mode");
+
       if (err.description === "Wrong email or password.") {
         toast.error("Wrong email or password");
+
+        setLoader(false);
       } else {
         setLoader(false);
         toast.error("Wrong email or password");
@@ -162,12 +170,12 @@ function Login() {
       toast.error("Please enter a valid password");
       return;
     }
-
+    setLoader(true);
     let user = await checkUserExists(FormData.email);
 
     if (user !== undefined) {
       toast.error("User already exists");
-
+      setLoader(false);
       return;
     }
 
@@ -195,12 +203,13 @@ function Login() {
       async function (err, result) {
         if (err) {
           toast.error("User already exists");
+          setLoader(false);
         } else {
           localStorage.setItem("auth_mode", "manual");
           localStorage.setItem("firstName", FormData?.firstName);
           localStorage.setItem("lastName", FormData?.lastName);
           localStorage.setItem("authEmail", FormData?.email);
-
+          setLoader(false);
           await manualLogin({
             connection: "Username-Password-Authentication",
             username: FormData?.email,
@@ -215,6 +224,11 @@ function Login() {
   const switchToForgotPassword = () => {
     setForgotPass(!forgotPass);
     setReqSuccess(false);
+    let FormData = { ...formData };
+
+    FormData.email = "";
+    FormData.password = "";
+    setFormData(FormData);
   };
 
   const authZeroResetPassword = async (email) => {
@@ -234,6 +248,12 @@ function Login() {
       return;
     }
 
+    if (user && user.isSocial) {
+      toast.error("This email uses social login.");
+
+      return;
+    }
+    setLoader(true);
     let settingURL = process.env.PUBLIC_URL + "/setting.json";
     const response = await fetch(settingURL);
     const data = await response.json();
@@ -285,7 +305,8 @@ function Login() {
 
   const handleSocialSignUp = async () => {
     let user = await checkUserExists(signUpFormData.email);
-
+    let authResponse = await getAuth0Token();
+    let profilePic = authResponse.body.decodedToken.user.picture;
     if (user !== undefined) {
       toast.error("User already exists");
 
@@ -298,6 +319,7 @@ function Login() {
         lastName: signUpFormData.lastName,
         email: signUpFormData.email,
         isSocial: true,
+        profilePic: profilePic,
         created: Timestamp.now(),
       });
       localStorage.setItem("authEmail", signUpFormData.email);
@@ -328,6 +350,7 @@ function Login() {
             handleSubmit={handleSubmit}
             handleLoginGoogle={() => handleLoginGoogle("LOGIN")}
             switchToForgotPassword={switchToForgotPassword}
+            loader={loader}
           />
         ) : signUp ? (
           <SignUp
@@ -338,6 +361,7 @@ function Login() {
             signUpFormData={signUpFormData}
             isSocial={isSocial}
             goToHome={goToHome}
+            loader={loader}
           />
         ) : (
           <ForgotPassword
@@ -345,6 +369,7 @@ function Login() {
             handleSubmit={authZeroResetPassword}
             switchToForgotPassword={switchToForgotPassword}
             reqSuccess={reqSuccess}
+            loader={loader}
           />
         )}
       </div>

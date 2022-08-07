@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { getToken } from "../../Auth0/auth0-spa";
-import { getAuth0Token, saveProfile } from "../../utils/localStorage";
+import {
+  getAuth0Token,
+  saveProfile,
+  getProfile,
+} from "../../utils/localStorage";
 import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 import { db, checkUserExists } from "../../utils/firebase";
 import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { ToastContainer, toast } from "react-toastify";
-// import Loader from "react-loader-spinner";
+import { Grid } from "react-loader-spinner";
 
 function RedirectDashboard() {
   const navigate = useHistory();
@@ -13,6 +17,8 @@ function RedirectDashboard() {
 
   useEffect(() => {
     getAuthToken();
+    document.body.style = "background: white;";
+    return (document.body.style = "background: inherit;");
   }, []);
 
   const saveUser = async () => {
@@ -21,6 +27,11 @@ function RedirectDashboard() {
     let email = localStorage.getItem("authEmail");
     let type = localStorage.getItem("type");
     let authType = localStorage.getItem("authType");
+    let authResponse = "";
+    await getToken().then(async (data) => {
+      authResponse = await getAuth0Token();
+    });
+
     if (type !== "login") {
       try {
         await addDoc(collection(db, "userData"), {
@@ -28,6 +39,7 @@ function RedirectDashboard() {
           lastName: lastName,
           email: email,
           created: Timestamp.now(),
+          profilePic: authResponse.body.decodedToken.user.picture,
           isSocial: false,
         });
       } catch (err) {
@@ -49,21 +61,10 @@ function RedirectDashboard() {
     }
   };
 
-  const setAppAuthData = (authResponse) => {
-    saveProfile({
-      userName: authResponse.body.decodedToken.user.name,
-      attributes: authResponse.body.decodedToken,
-      accessToken: authResponse.body.access_token,
-      idToken: authResponse.body.id_token,
-      refreshToken: authResponse.body.refresh_token,
-    });
-  };
-
   const getAuthToken = async () => {
     await getToken()
       .then(async (data) => {
         await saveUser();
-        // setAppAuthData();
       })
       .catch((e) => {
         console.log("ddd", e);
@@ -71,8 +72,15 @@ function RedirectDashboard() {
   };
 
   return (
-    <div style={{ width: "100%", textAlign: "center", marginTop: "100px" }}>
-      {/* <Loader type="Oval" color="#504294" height={60} width={60} /> */}
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        justifyContent: "center",
+        marginTop: "100px",
+      }}
+    >
+      <Grid color="#00BFFF" height={100} width={100} />
     </div>
   );
 }
