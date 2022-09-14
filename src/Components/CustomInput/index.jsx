@@ -54,7 +54,6 @@ function CustomInput({
           autoComplete={autoComplete ? autoComplete : ""}
           onChange={onChange}
           placeholder={placeholder ? placeholder : ""}
-          inputProps={inputProps ? inputProps : ""}
           style={{ width: width ? width : "" }}
           type={type}
           disabled={isSocial ? true : false}

@@ -21,7 +21,17 @@ function RedirectDashboard() {
     return (document.body.style = "background: inherit;");
   }, []);
 
-  const saveUser = async () => {
+  const setAppAuthData = (authResponse) => {
+    saveProfile({
+      userName: authResponse.body.decodedToken.user.name,
+      attributes: authResponse.body.decodedToken,
+      accessToken: authResponse.body.access_token,
+      idToken: authResponse.body.id_token,
+      refreshToken: authResponse.body.refresh_token,
+    });
+  };
+
+  const getAuthToken = async () => {
     let firstName = localStorage.getItem("firstName");
     let lastName = localStorage.getItem("lastName");
     let email = localStorage.getItem("authEmail");
@@ -30,6 +40,7 @@ function RedirectDashboard() {
     let authResponse = "";
     await getToken().then(async (data) => {
       authResponse = await getAuth0Token();
+      await setAppAuthData(authResponse);
     });
 
     if (type !== "login") {
@@ -59,16 +70,6 @@ function RedirectDashboard() {
     } else {
       navigate.push("/dashboard", { replace: true });
     }
-  };
-
-  const getAuthToken = async () => {
-    await getToken()
-      .then(async (data) => {
-        await saveUser();
-      })
-      .catch((e) => {
-        console.log("ddd", e);
-      });
   };
 
   return (
